@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonConvertor", "JsonConvertor\JsonConvertor.csproj", "{4106C732-D428-4FB4-A099-D0800E3DE980}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4106C732-D428-4FB4-A099-D0800E3DE980}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4106C732-D428-4FB4-A099-D0800E3DE980}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4106C732-D428-4FB4-A099-D0800E3DE980}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4106C732-D428-4FB4-A099-D0800E3DE980}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {44770B7F-E31A-4EE9-9317-EAA9CB6CF101}
+	EndGlobalSection
+EndGlobal

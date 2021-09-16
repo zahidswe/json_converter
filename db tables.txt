@@ -1,0 +1,1 @@
+AcademicClass,BigTest,BigTestQuestionAnswer,Level,LevelBigTest,LevelScript,Script,ScriptVideo,SmallTest,SmallTestQuestionAnswer,Subject,SubjectLevel,Video,VideoSmallTest

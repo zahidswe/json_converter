@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using Dapper;
 using System.Configuration;
 using Newtonsoft.Json;
-using System.Web.Hosting;
 using System.IO;
 
 namespace JsonConvertor
 {
     public partial class Form1 : Form
     {
-        private SqlConnection  con;
+        public string DestinationFolder { get; set; }
+
+        public IDbConnection _db { get; set; }
         public Form1()
         {
             InitializeComponent();
@@ -29,15 +26,21 @@ namespace JsonConvertor
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = "Open Text File";
             openFileDialog.Filter = "TXT files|*.txt";
-            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
 
+            List<string> errors = new List<string>();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
                 try
                 {
+                    OpenDatabase();
+                    DestinationFolder = _db.Database;
+
+                    if (!Directory.Exists(DestinationFolder))
+                        Directory.CreateDirectory(DestinationFolder);
+
                     string filename = openFileDialog.FileName;
 
                     string[] filelines = File.ReadAllLines(filename);
-
 
                     for (int a = 0; a < filelines.Length; a++)
                     {
@@ -45,8 +48,14 @@ namespace JsonConvertor
 
                         foreach (var table in tables)
                         {
-                            GetAllInfo(table);
-                    
+                            try
+                            {
+                                ConvertTableDataToJson(table);
+                            }
+                            catch (Exception ex)
+                            {
+                                errors.Add("Error for " + table + ": " + ex.Message);
+                            }
                         }
                     }
                 }
@@ -54,35 +63,32 @@ namespace JsonConvertor
                 {
                     MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
                 }
-               
-      
+                finally
+                {
+                    if (_db.State == ConnectionState.Open)
+                        _db.Close();
+                }
+                MessageBox.Show("Successfully Converted" + (errors.Any() ? " with following errors: " + string.Join("\n", errors) : "."));
             }
         }
-        public static void GetAllInfo(string table)
+        public void ConvertTableDataToJson(string table)
         {
-            using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString))
+            var items = _db.Query("select * from " + table).ToArray();
+            string json = JsonConvert.SerializeObject(items, Formatting.Indented, new JsonSerializerSettings
             {
-                if (db.State == ConnectionState.Closed)
-                    db.Open();
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            });
 
-                var items = db.Query<object>("select * from "+table).ToArray();
-                try
-                {
-                    string json = JsonConvert.SerializeObject(items, Formatting.Indented, new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        MissingMemberHandling = MissingMemberHandling.Ignore
-                    });
-                    string path = System.IO.Path.GetFullPath("~");
+            File.WriteAllText(DestinationFolder + "/" + table + ".json", json);
+        }
 
-                    System.IO.File.WriteAllText(table + ".json", json);
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
 
-            }
+        private void OpenDatabase()
+        {
+            _db = new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            if (_db.State == ConnectionState.Closed)
+                _db.Open();
         }
     }
 }
